@@ -151,3 +151,35 @@ window.countNQueensSolutions = function(n) {
       
   //   }
   // }
+
+var zeroMinorDiags = function(startX,startY,n) {
+      let inputMatrix = [['u','u','u','u'], // pretend 'u' is undefined - this just makes
+                         ['u','u','u','u'], // logs/output more readable. it works on undefined
+                         ['u','u','u','u'], // as well.
+                         ['u','u','u','u']];
+      let row = startX; // might be able to just use row or startX
+      let col = startY; // I couldn't remember if increment mutates
+                        // and if it mattered if it did in this case
+
+      for(let i = 0; i < n; i++) { 
+        inputMatrix[row][col] = 0;
+        row++;
+        col--;
+        if (row > n-1) { 
+          row = row % n;
+        }
+        if (col < 0) { // modulo doesn't seem to work well in this case
+                       // (for col hitting -1) or I'm misunderstanding the math
+                       // as far as I can tell this will have a similar effect
+          col = col + n;
+        }
+      }
+      // easily readable test output:
+      // console.log(inputMatrix[0]);
+      // console.log(inputMatrix[1]);
+      // console.log(inputMatrix[2]);
+      // console.log(inputMatrix[3]);
+}
+
+// test invocation:
+// hasMinorDiagonalConflictAt(1,3,4);
