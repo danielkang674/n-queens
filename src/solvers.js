@@ -74,10 +74,12 @@ window.findNQueensSolution = function(n,coordPair) {
   //all loops (row, length, row0,col0,mjdiag0,mndiag0) must have modulo functionality
   //declare queen counter as 0
   //set row & col to coordPair or 0,0 if none provided
-  //
-  //for row; vs length of n; row++
+  
+  //for row; vs length of n; row++ ----- do we have a problem here where we need to run four times 
+  //                                     but we might start our loop at row (from coordPair)? I 
+  //                                     you solved problem but I don't remember.                                        
 
-    // for col; vs length of n; col++
+    // for col; vs length of n; col++ ----- see comment 4 lines up
 
       // if coordPair = undefined
 
