@@ -197,7 +197,92 @@
         }
       }
       return false; // fixme
-    }
+    },
+
+    mikesFunction: function(n, coordPair){
+      let newBoard = new window.Board(this.rows().slice());
+      let solution = undefined;
+      let qCounter = 0;
+      let outerRow = coordPair[0];
+      let outerCol = coordPair[1];
+      let row = (outerRow + k) % n;
+      let col = (outerCol + l) % n;
+      let space = newBoard.rows()[row][col];
+      if(space === 0){
+        newBoard.zeroRowCol(row, col, n, newBoard.rows());
+        newBoard.zeroMajorDiags(row, col, n, newBoard.rows());
+        newBoard.zeroMinorDiags(row, col, n, newBoard.rows());
+        newBoard[row][col] = 1;
+        qCounter++;
+      }
+      console.log(newBoard);
+      let arrayOfZeros = [];
+      for(let i = 0; i < n; i++){
+        for(let j = 0; j < n; j++){
+          if(newBoard.rows()[i][j] === 0){
+            arrayOfZeros.push([i, j]);
+          }
+        }
+      }
+      for(let k = 0; k < n; k++){
+        newBoard.mikesFunction(n, arrayOfZeros[k]);
+      }
+      if(qCounter >= n){
+        solution = newBoard;
+      }
+      return solution;
+    },
+    
+    zeroRowCol: (row, col, n, matrix)=>{
+      for(let i = 0; i < n; i++){
+        matrix[row][i] = 2;
+        matrix[i][col] = 2;
+      }
+    },
+
+    zeroMajorDiags: (row, col, n, matrix)=>{
+      // move to left or top of matrix & calc length
+      let magicNumber;
+      if (row <= col) {
+        col -= row;
+        row -= row;
+        magicNumber = n - col;
+      } else if (row > col) {
+        row -= col;
+        col -= col;
+        magicNumber = n - row;
+      }
+      // add zeros
+      for(let i = 0; i < magicNumber; i++){
+        matrix[row][col] = 2;
+        row = (row + 1);
+        col = (col + 1);
+      }
+    },
+
+    zeroMinorDiags: function(row,col,n,matrix) {
+      // move to top or right of matrix
+      let magicNumber;
+      let tempNum = row + col;
+      let tempNum2 = tempNum - (n - 1);
+      row = tempNum2;
+      col = n - 1;
+      if(row < 0){
+        col += row;
+        row -= row;
+      }
+      // calc length
+      magicNumber = col - row + 1;
+      // add zeros
+      for(let i = 0; i < magicNumber; i++) {
+        matrix[row][col] = 2; 
+        row = (row + 1) % n;
+        col = (col - 1);
+        if (col < 0) {
+          col = col + n;
+        }
+      }
+    } 
 
     /*--------------------  End of Helper Functions  ---------------------*/
 
