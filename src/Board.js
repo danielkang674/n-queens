@@ -79,12 +79,23 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function (rowIndex) {
+      let inputMatrix = this.rows();
+      let counter = 0;
 
-      return false; // fixme
+      for (let i = 0; i < inputMatrix[rowIndex].length; i++) {
+        counter += inputMatrix[rowIndex][i];
+      }
+      return counter > 1 ? true : false; // fixme
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function () {
+      let inputMatrix = this.rows();
+      for (let i = 0; i < inputMatrix.length; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
@@ -95,11 +106,26 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function (colIndex) {
+      let inputMatrix = this.rows();
+      let counter = 0;
+
+      for (let i = 0; i < inputMatrix.length; i++) {
+        counter += inputMatrix[i][colIndex];
+        if (counter > 1) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function () {
+      let inputMatrix = this.rows();
+      for (let i = 0; i < inputMatrix.length; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
@@ -110,11 +136,28 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function (majorDiagonalColumnIndexAtFirstRow) {
+      let inputMatrix = this.rows();
+      let counter1 = 0;
+      let counter2 = 0;
+
+      for (let i = 0; i < inputMatrix.length - majorDiagonalColumnIndexAtFirstRow; i++) {
+        counter1 += inputMatrix[i][i + majorDiagonalColumnIndexAtFirstRow];
+        counter2 += inputMatrix[majorDiagonalColumnIndexAtFirstRow + i][i];
+        if (counter1 > 1 || counter2 > 1) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function () {
+      let inputMatrix = this.rows();
+      for (let i = 0; i < inputMatrix.length; i++) {
+        if (this.hasMajorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
@@ -124,13 +167,121 @@
     // --------------------------------------------------------------
     //
     // test if a specific minor diagonal on this board contains a conflict
+
     hasMinorDiagonalConflictAt: function (minorDiagonalColumnIndexAtFirstRow) {
+      let inputMatrix = this.rows();
+      let counter1 = 0;
+      let counter2 = 0;
+      let lengthCrazy = inputMatrix.length - minorDiagonalColumnIndexAtFirstRow - 1;
+      let minor = minorDiagonalColumnIndexAtFirstRow;
+
+      for (let i = 0; i < lengthCrazy + 1; i++) {
+        counter1 += inputMatrix[i][lengthCrazy - i]; //1st pass : 0,1 2nd pass: 1,0
+        counter2 += inputMatrix[i + minor][lengthCrazy + minor - i]; //1st pass : 2,3 2nd pass: 3,2
+        if (counter1 > 1 || counter2 > 1) {
+          return true;
+        }
+      }
       return false; // fixme
     },
 
+    //MINOR = 2
+    //lengthCrazy = 1
+
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function () {
+      let inputMatrix = this.rows();
+      for (let i = 0; i < inputMatrix.length; i++) {
+        if (this.hasMinorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
       return false; // fixme
+    },
+
+    mikesFunction: function (n, coordPair) {
+      let newBoard = new window.Board(this.rows().slice());
+      let solution = undefined;
+      let qCounter = 0;
+      let outerRow = coordPair[0];
+      let outerCol = coordPair[1];
+      let row = (outerRow + k) % n;
+      let col = (outerCol + l) % n;
+      let space = newBoard.rows()[row][col];
+      if (space === 0) {
+        newBoard.zeroRowCol(row, col, n, newBoard.rows());
+        newBoard.zeroMajorDiags(row, col, n, newBoard.rows());
+        newBoard.zeroMinorDiags(row, col, n, newBoard.rows());
+        newBoard[row][col] = 1;
+        qCounter++;
+      }
+      console.log(newBoard);
+      let arrayOfZeros = [];
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (newBoard.rows()[i][j] === 0) {
+            arrayOfZeros.push([i, j]);
+          }
+        }
+      }
+      for (let k = 0; k < n; k++) {
+        newBoard.mikesFunction(n, arrayOfZeros[k]);
+      }
+      if (qCounter >= n) {
+        solution = newBoard;
+      }
+      return solution;
+    },
+
+    zeroRowCol: (row, col, n, matrix) => {
+      for (let i = 0; i < n; i++) {
+        matrix[row][i] = 2;
+        matrix[i][col] = 2;
+      }
+    },
+
+    zeroMajorDiags: (row, col, n, matrix) => {
+      // move to left or top of matrix & calc length
+      let magicNumber;
+      if (row <= col) {
+        col -= row;
+        row -= row;
+        magicNumber = n - col;
+      } else if (row > col) {
+        row -= col;
+        col -= col;
+        magicNumber = n - row;
+      }
+      // add zeros
+      for (let i = 0; i < magicNumber; i++) {
+        matrix[row][col] = 2;
+        row = (row + 1);
+        col = (col + 1);
+      }
+    },
+
+    zeroMinorDiags: function (row, col, n, matrix) {
+      // move to top or right of matrix
+      let magicNumber;
+      let tempNum = row + col;
+      let tempNum2 = tempNum - (n - 1);
+      row = tempNum2;
+      col = n - 1;
+      if (row < 0) {
+        col += row;
+        row -= row;
+      }
+      // calc length
+      magicNumber = col - row + 1;
+      // add zeros
+      for (let i = 0; i < magicNumber; i++) {
+        matrix[row][col] = 2;
+        row = (row + 1) % n;
+        col = (col - 1);
+        if (col < 0) {
+          col = col + n;
+        }
+      }
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
@@ -138,7 +289,7 @@
 
   });
 
-  var makeEmptyMatrix = function (n) {
+  let makeEmptyMatrix = function (n) {
     return _(_.range(n)).map(function () {
       return _(_.range(n)).map(function () {
         return 0;
